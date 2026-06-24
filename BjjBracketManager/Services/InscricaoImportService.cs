@@ -132,12 +132,12 @@ public class InscricaoImportService
     {
         var colunas = new MapeamentoColunas
         {
-            Nome = EncontrarColuna(cabecalho, EhColunaNome),
-            Genero = EncontrarColuna(cabecalho, EhColunaGenero),
-            Peso = EncontrarColuna(cabecalho, EhColunaPeso),
-            Graduacao = EncontrarColuna(cabecalho, EhColunaGraduacao),
-            CategoriaIdade = EncontrarColuna(cabecalho, EhColunaCategoriaIdade),
-            Equipe = EncontrarColuna(cabecalho, EhColunaEquipe)
+            Nome = EncontrarMelhorColuna(cabecalho, PontuarColunaNome),
+            Genero = EncontrarMelhorColuna(cabecalho, PontuarColunaGenero),
+            Peso = EncontrarMelhorColuna(cabecalho, PontuarColunaPeso),
+            Graduacao = EncontrarMelhorColuna(cabecalho, PontuarColunaGraduacao),
+            CategoriaIdade = EncontrarMelhorColuna(cabecalho, PontuarColunaCategoriaIdade),
+            Equipe = EncontrarMelhorColuna(cabecalho, PontuarColunaEquipe)
         };
 
         if (colunas.EhValido)
@@ -148,48 +148,97 @@ public class InscricaoImportService
             string.Join(", ", colunas.ObterAusentes()) + ".");
     }
 
-    private static int EncontrarColuna(IReadOnlyList<string> cabecalho, Func<string, bool> criterio)
+    private static int EncontrarMelhorColuna(IReadOnlyList<string> cabecalho, Func<string, int> pontuar)
     {
+        var melhorIndice = -1;
+        var melhorPontuacao = 0;
+
         for (var i = 0; i < cabecalho.Count; i++)
         {
-            if (criterio(NormalizarCabecalho(cabecalho[i])))
-                return i;
+            var pontuacao = pontuar(NormalizarCabecalho(cabecalho[i]));
+            if (pontuacao > melhorPontuacao)
+            {
+                melhorIndice = i;
+                melhorPontuacao = pontuacao;
+            }
         }
 
-        return -1;
+        return melhorIndice;
     }
 
-    private static bool EhColunaNome(string cabecalho)
+    private static int PontuarColunaNome(string cabecalho)
     {
-        return cabecalho.Contains("nome do atleta") ||
-               cabecalho.Contains("nome completo") ||
-               cabecalho.Contains("seu nome");
+        if (cabecalho.Contains("nome do atleta"))
+            return 100;
+        if (cabecalho.Contains("nome completo"))
+            return 90;
+        if (cabecalho.Contains("seu nome"))
+            return 80;
+        if (cabecalho.StartsWith("nome"))
+            return 70;
+
+        return 0;
     }
 
-    private static bool EhColunaGenero(string cabecalho)
+    private static int PontuarColunaGenero(string cabecalho)
     {
-        return cabecalho.Contains("genero");
+        if (cabecalho.Contains("genero"))
+            return 100;
+        if (cabecalho.Contains("sexo"))
+            return 80;
+
+        return 0;
     }
 
-    private static bool EhColunaPeso(string cabecalho)
+    private static int PontuarColunaPeso(string cabecalho)
     {
-        return cabecalho.Contains("peso");
+        if (cabecalho.Contains("peso"))
+            return 100;
+
+        return 0;
     }
 
-    private static bool EhColunaGraduacao(string cabecalho)
+    private static int PontuarColunaGraduacao(string cabecalho)
     {
-        return cabecalho.Contains("graduacao");
+        if (cabecalho.Contains("graduacao"))
+            return 100;
+        if (cabecalho.Contains("faixa"))
+            return 80;
+
+        return 0;
     }
 
-    private static bool EhColunaCategoriaIdade(string cabecalho)
+    private static int PontuarColunaCategoriaIdade(string cabecalho)
     {
-        return cabecalho.Contains("categoria") ||
-               cabecalho.Contains("idade");
+        var pontuacao = 0;
+
+        if (cabecalho.Contains("categoria"))
+            pontuacao += 45;
+        if (cabecalho.Contains("idade"))
+            pontuacao += 45;
+        if (cabecalho.Contains("anos") || cabecalho.Contains("ano"))
+            pontuacao += 25;
+
+        if (cabecalho.Contains("peso"))
+            pontuacao -= 80;
+        if (cabecalho.Contains("equipe"))
+            pontuacao -= 80;
+
+        return Math.Max(0, pontuacao);
     }
 
-    private static bool EhColunaEquipe(string cabecalho)
+    private static int PontuarColunaEquipe(string cabecalho)
     {
-        return cabecalho.Contains("equipe");
+        if (cabecalho.Contains("equipe"))
+            return 100;
+        if (cabecalho.Contains("academia"))
+            return 85;
+        if (cabecalho.Contains("time"))
+            return 70;
+        if (cabecalho.Contains("team"))
+            return 70;
+
+        return 0;
     }
 
     private static List<List<string>> LerTabelaTabulada(string caminhoArquivo)
