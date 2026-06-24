@@ -14,6 +14,9 @@ public partial class ExportarChaveamentoWindow : Window
         InitializeComponent();
 
         OpcaoChaveAtual.IsEnabled = possuiChaveAtual;
+        TxtChaveAtualIndisponivel.Visibility = possuiChaveAtual
+            ? Visibility.Collapsed
+            : Visibility.Visible;
 
         if (!possuiChaveAtual)
             OpcaoTodasChaves.IsChecked = true;

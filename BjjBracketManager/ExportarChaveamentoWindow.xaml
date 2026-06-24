@@ -12,7 +12,15 @@
 
         <StackPanel>
             <TextBlock Text="Escolha o PDF que deseja gerar:" FontWeight="SemiBold" Margin="0 0 0 12" />
-            <RadioButton x:Name="OpcaoChaveAtual" Content="Chave atual" IsChecked="True" Margin="0 0 0 8" />
+            <RadioButton x:Name="OpcaoChaveAtual" IsChecked="True" Margin="0 0 0 8">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Chave atual" />
+                    <TextBlock x:Name="TxtChaveAtualIndisponivel"
+                               Text=" (necessário gerar uma chave antes!)"
+                               Foreground="#888888"
+                               Visibility="Collapsed" />
+                </StackPanel>
+            </RadioButton>
             <RadioButton x:Name="OpcaoTodasChaves" Content="Todas as chaves" />
         </StackPanel>
     </DockPanel>
