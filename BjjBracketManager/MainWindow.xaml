@@ -30,7 +30,7 @@
                     Margin="8 0 0 0"
                     Click="GerarCategorias_Click" />
             <Button x:Name="BtnCriarChaveamento"
-                    Content="Criar chaveamento"
+                    Content="Gerar Chaveamento"
                     Width="150"
                     Height="32"
                     Margin="8 0 0 0"
