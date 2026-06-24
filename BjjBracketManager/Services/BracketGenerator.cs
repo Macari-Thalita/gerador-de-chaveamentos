@@ -16,11 +16,7 @@ public class BracketGenerator
             throw new InvalidOperationException("O tamanho da chave não pode ser menor que a quantidade de atletas.");
 
         var atletas = DistribuirAtletas(categoria.Atletas.ToList());
-        var posicoes = new List<Atleta?>();
-        posicoes.AddRange(atletas);
-
-        while (posicoes.Count < tamanhoChave)
-            posicoes.Add(null);
+        var posicoes = CriarPosicoesComByes(atletas, tamanhoChave);
 
         var lutas = new ObservableCollection<Luta>();
         var posicao = 1;
@@ -100,6 +96,44 @@ public class BracketGenerator
         while (tamanho < quantidade)
             tamanho *= 2;
         return tamanho;
+    }
+
+    private static List<Atleta?> CriarPosicoesComByes(List<Atleta> atletas, int tamanhoChave)
+    {
+        var posicoes = new List<Atleta?>();
+        var quantidadeLutas = tamanhoChave / 2;
+        var quantidadeByes = Math.Min(tamanhoChave - atletas.Count, quantidadeLutas);
+        var lutasComBye = CriarOrdemDistribuidaDeByes(quantidadeLutas)
+            .Take(quantidadeByes)
+            .ToHashSet();
+        var indiceAtleta = 0;
+
+        for (var posicaoLuta = 0; posicaoLuta < quantidadeLutas; posicaoLuta++)
+        {
+            if (lutasComBye.Contains(posicaoLuta))
+            {
+                posicoes.Add(indiceAtleta < atletas.Count ? atletas[indiceAtleta++] : null);
+                posicoes.Add(null);
+                continue;
+            }
+
+            posicoes.Add(indiceAtleta < atletas.Count ? atletas[indiceAtleta++] : null);
+            posicoes.Add(indiceAtleta < atletas.Count ? atletas[indiceAtleta++] : null);
+        }
+
+        return posicoes;
+    }
+
+    private static List<int> CriarOrdemDistribuidaDeByes(int quantidadeLutas)
+    {
+        if (quantidadeLutas <= 1)
+            return new List<int> { 0 };
+
+        var ordemMenor = CriarOrdemDistribuidaDeByes(quantidadeLutas / 2);
+        var pares = ordemMenor.Select(i => i * 2);
+        var impares = ordemMenor.Select(i => i * 2 + 1).Reverse();
+
+        return pares.Concat(impares).ToList();
     }
 
     private static List<Atleta> DistribuirAtletas(List<Atleta> atletas)

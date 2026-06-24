@@ -10,7 +10,7 @@ public class ChaveamentoPdfExportService
     private const double PageHeight = 595;
     private const double Margin = 34;
     private const double HeaderHeight = 72;
-    private const double CenterGap = 46;
+    private const double CenterGap = 170;
 
     private readonly BracketGenerator _bracketGenerator = new();
 
@@ -162,7 +162,7 @@ public class ChaveamentoPdfExportService
         var sideRounds = (int)Math.Log2(metade);
         var levels = sideRounds + 1;
 
-        var boxWidth = Math.Clamp((PageWidth - Margin * 2 - CenterGap) / (levels * 2.25), 96, 150);
+        var boxWidth = Math.Clamp((PageWidth - Margin * 2 - CenterGap) / (levels * 2.1), 78, 145);
         var boxHeight = Math.Clamp((PageHeight - HeaderHeight - Margin) / Math.Max(metade * 1.8, 1), 18, 26);
         var availableHeight = PageHeight - HeaderHeight - Margin;
         var top = PageHeight - HeaderHeight;
@@ -198,7 +198,14 @@ public class ChaveamentoPdfExportService
         if (rightCenters.Count > 0)
             finalLineY = (finalLineY + rightCenters[^1][0]) / 2;
 
-        comandos.Line(leftFinalX + boxWidth, finalLineY, rightFinalX, finalLineY);
+        var championBoxWidth = Math.Clamp(boxWidth + 18, 110, 140);
+        var championBoxHeight = Math.Max(boxHeight, 24);
+        var championBoxX = PageWidth / 2 - championBoxWidth / 2;
+        var championBoxY = finalLineY - championBoxHeight / 2;
+
+        comandos.Line(leftFinalX + boxWidth, finalLineY, championBoxX, finalLineY);
+        comandos.Line(championBoxX + championBoxWidth, finalLineY, rightFinalX, finalLineY);
+        comandos.DrawBox(championBoxX, championBoxY, championBoxWidth, championBoxHeight, string.Empty);
     }
 
     private static List<List<double>> DesenharLado(
@@ -221,7 +228,7 @@ public class ChaveamentoPdfExportService
 
             for (var i = 0; i < centers.Count; i++)
             {
-                var texto = level == 0 ? atletas[i]?.Nome ?? string.Empty : string.Empty;
+                var texto = level == 0 ? atletas[i]?.Nome ?? "BYE" : string.Empty;
                 comandos.DrawBox(x, centers[i] - boxHeight / 2, boxWidth, boxHeight, texto);
             }
 
