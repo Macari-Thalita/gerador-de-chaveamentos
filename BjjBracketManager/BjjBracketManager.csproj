@@ -8,9 +8,14 @@
     <AssemblyName>GeradorDeChaveamentos</AssemblyName>
     <Product>Gerador de Chaveamentos</Product>
     <Title>Gerador de Chaveamentos</Title>
+    <ApplicationIcon>Assets\app-icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.104.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\app-icon.ico" />
   </ItemGroup>
 </Project>
