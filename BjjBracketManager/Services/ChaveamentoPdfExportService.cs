@@ -162,8 +162,8 @@ public class ChaveamentoPdfExportService
         var sideRounds = (int)Math.Log2(metade);
         var levels = sideRounds + 1;
 
-        var boxWidth = Math.Clamp((PageWidth - Margin * 2 - CenterGap) / (levels * 2.75), 72, 118);
-        var boxHeight = Math.Clamp((PageHeight - HeaderHeight - Margin) / Math.Max(metade * 2.1, 1), 11, 20);
+        var boxWidth = Math.Clamp((PageWidth - Margin * 2 - CenterGap) / (levels * 2.25), 96, 150);
+        var boxHeight = Math.Clamp((PageHeight - HeaderHeight - Margin) / Math.Max(metade * 1.8, 1), 18, 26);
         var availableHeight = PageHeight - HeaderHeight - Margin;
         var top = PageHeight - HeaderHeight;
         var centerY = top - availableHeight / 2;
@@ -362,11 +362,14 @@ public class ChaveamentoPdfExportService
             if (string.IsNullOrWhiteSpace(text))
                 return;
 
-            var fontSize = height < 14 ? 6.5 : 7.5;
-            var maxChars = Math.Max(8, (int)(width / (fontSize * 0.48)));
-            var safeText = TruncarTexto(text, maxChars);
+            var fontSize = CalcularFonteParaCaixa(text, width, height);
+            var lines = QuebrarTextoParaCaixa(text, width, fontSize).Take(2).ToList();
+            var lineHeight = fontSize + 1;
+            var totalTextHeight = lines.Count * lineHeight;
+            var firstLineY = y + (height + totalTextHeight) / 2 - fontSize;
 
-            DrawText(x + 4, y + height / 2 - fontSize / 2 + 1.5, fontSize, safeText);
+            for (var i = 0; i < lines.Count; i++)
+                DrawText(x + 4, firstLineY - i * lineHeight, fontSize, lines[i]);
         }
 
         public void DrawText(double x, double y, double fontSize, string text)
@@ -398,6 +401,71 @@ public class ChaveamentoPdfExportService
                 .Replace(")", "\\)")
                 .Replace("\r", string.Empty)
                 .Replace("\n", " ");
+        }
+
+        private static double CalcularFonteParaCaixa(string text, double width, double height)
+        {
+            var availableWidth = width - 8;
+            var availableHeight = height - 4;
+
+            for (var fontSize = 8.0; fontSize >= 5.5; fontSize -= 0.5)
+            {
+                var lines = QuebrarTextoParaCaixa(text, width, fontSize).Take(3).ToList();
+
+                if (lines.Count <= 2 && lines.Count * (fontSize + 1) <= availableHeight)
+                    return fontSize;
+
+                if (lines.Count == 1 && EstimarLarguraTexto(lines[0], fontSize) <= availableWidth)
+                    return fontSize;
+            }
+
+            return 5.5;
+        }
+
+        private static IEnumerable<string> QuebrarTextoParaCaixa(string text, double width, double fontSize)
+        {
+            var maxWidth = width - 8;
+            var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var line = string.Empty;
+
+            foreach (var word in words)
+            {
+                var candidate = string.IsNullOrEmpty(line) ? word : $"{line} {word}";
+
+                if (EstimarLarguraTexto(candidate, fontSize) <= maxWidth)
+                {
+                    line = candidate;
+                    continue;
+                }
+
+                if (!string.IsNullOrEmpty(line))
+                    yield return line;
+
+                line = EstimarLarguraTexto(word, fontSize) <= maxWidth
+                    ? word
+                    : TruncarParaLargura(word, maxWidth, fontSize);
+            }
+
+            if (!string.IsNullOrEmpty(line))
+                yield return line;
+        }
+
+        private static string TruncarParaLargura(string text, double maxWidth, double fontSize)
+        {
+            if (EstimarLarguraTexto(text, fontSize) <= maxWidth)
+                return text;
+
+            var result = text;
+
+            while (result.Length > 3 && EstimarLarguraTexto(result + "...", fontSize) > maxWidth)
+                result = result[..^1];
+
+            return result + "...";
+        }
+
+        private static double EstimarLarguraTexto(string text, double fontSize)
+        {
+            return text.Length * fontSize * 0.48;
         }
     }
 }
