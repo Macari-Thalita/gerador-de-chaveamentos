@@ -1,0 +1,21 @@
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.cache
+
+# Local exports/import samples with real registration data
+exemplo-inscricoes.tsv
+
+# Build outputs
+**/bin/
+**/obj/
+
+# Local IDE settings
+.idea/
+.vscode/
+
+# OS files
+Thumbs.db
+Desktop.ini

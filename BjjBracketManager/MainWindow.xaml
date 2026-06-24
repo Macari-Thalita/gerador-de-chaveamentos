@@ -1,0 +1,113 @@
+<Window x:Class="BjjBracketManager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Gerador de Chaveamentos" Height="760" Width="1180"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
+            <Button x:Name="BtnImportar"
+                    Content="Importar inscrições"
+                    Width="150"
+                    Height="32"
+                    Click="Importar_Click" />
+            <Button x:Name="BtnRevisarDados"
+                    Content="Revisar dados"
+                    Width="130"
+                    Height="32"
+                    Margin="8 0 0 0"
+                    Click="RevisarDados_Click" />
+            <Button x:Name="BtnGerarCategorias"
+                    Content="Gerar categorias"
+                    Width="150"
+                    Height="32"
+                    Margin="8 0 0 0"
+                    Click="GerarCategorias_Click" />
+            <Button x:Name="BtnCriarChaveamento"
+                    Content="Criar chaveamento"
+                    Width="150"
+                    Height="32"
+                    Margin="8 0 0 0"
+                    Click="CriarChaveamento_Click" />
+            <Button x:Name="BtnExportarChaveamento"
+                    Content="Exportar Chaveamento"
+                    Width="170"
+                    Height="32"
+                    Margin="8 0 0 0"
+                    Click="ExportarChaveamento_Click" />
+            <TextBlock x:Name="TxtStatus" VerticalAlignment="Center" Margin="16 0 0 0" />
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="2*" />
+            </Grid.ColumnDefinitions>
+
+            <GroupBox Header="Atletas importados" Margin="0 0 6 6">
+                <DataGrid x:Name="GridAtletas" AutoGenerateColumns="False" IsReadOnly="True">
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding PossivelDuplicado}" Value="True">
+                                    <Setter Property="Background" Value="#FFFFF3CD" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Nome" Binding="{Binding Nome}" Width="2*" />
+                        <DataGridTextColumn Header="Gênero" Binding="{Binding Genero}" Width="*" />
+                        <DataGridTextColumn Header="Peso" Binding="{Binding Peso}" Width="*" />
+                        <DataGridTextColumn Header="Graduação" Binding="{Binding Graduacao}" Width="*" />
+                        <DataGridTextColumn Header="Idade" Binding="{Binding CategoriaIdade}" Width="*" />
+                        <DataGridTextColumn Header="Equipe" Binding="{Binding Equipe}" Width="2*" />
+                        <DataGridTextColumn Header="Observação" Binding="{Binding Observacoes}" Width="2*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </GroupBox>
+
+            <GroupBox Grid.Column="1" Header="Categorias encontradas" Margin="6 0 0 6">
+                <DataGrid x:Name="GridCategorias"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          SelectionMode="Single"
+                          SelectionChanged="GridCategorias_SelectionChanged">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Categoria" Binding="{Binding Nome}" Width="4*" />
+                        <DataGridTextColumn Header="Atletas" Binding="{Binding QuantidadeAtletas}" Width="*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </GroupBox>
+        </Grid>
+
+        <GroupBox x:Name="GroupChaveamento" Grid.Row="2" Header="Chaveamento da categoria selecionada" Margin="0 6 0 0">
+            <DataGrid x:Name="GridLutas" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Rodada" Binding="{Binding Rodada}" Width="80" />
+                    <DataGridTextColumn Header="Luta" Binding="{Binding Posicao}" Width="80" />
+                    <DataGridTextColumn Header="Atleta 1" Binding="{Binding NomeAtleta1}" Width="2*" />
+                    <DataGridTextColumn Header="Atleta 2" Binding="{Binding NomeAtleta2}" Width="2*" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </GroupBox>
+
+        <TextBlock Grid.Row="3"
+                   HorizontalAlignment="Right"
+                   Margin="0 8 2 0"
+                   FontSize="11"
+                   Foreground="#777777">
+            <Run Text="made by Thalita Macari · " />
+            <Hyperlink NavigateUri="https://github.com/Macari-Thalita"
+                       RequestNavigate="GitHubLink_RequestNavigate">
+                <Run Text="github" />
+            </Hyperlink>
+        </TextBlock>
+    </Grid>
+</Window>
